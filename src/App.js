@@ -17,19 +17,37 @@ class App extends Component {
 	}
 
 	previous = () => {
+		const { previous, page } = this.state;
 		//get previous page of results
-		if (this.state.previous) {
-			fetch(this.state.previous)
+		if (previous) {
+			fetch(previous)
 			.then(newRes => newRes.json())
-			.then(newData => this.setState({people: newData.results, previous: newData.previous, next: newData.next, searchField: ""}))
+			.then(newData => this.setState(
+				{
+					people: newData.results, 
+					previous: newData.previous, 
+					next: newData.next, 
+					searchField: "",
+					page: page-1
+				}
+			));
 		}
 	}
 
 	next = () => {
+		const { next, page } = this.state;
 		//get next page of results
-		fetch(this.state.next)
+		fetch(next)
 		.then(newRes => newRes.json())
-		.then(newData => this.setState({people: newData.results, previous: newData.previous, next: newData.next, searchField: ""}));
+		.then(newData => this.setState(
+			{
+				people: newData.results, 
+				previous: newData.previous, 
+				next: newData.next, 
+				searchField: "",
+				page: page+1
+			}
+		));
 	}
 
 	searchChange = (event) => {
@@ -37,18 +55,21 @@ class App extends Component {
 	}
 
 	render() {
-		const { people, searchField } = this.state;
+		//filters people array based on what's written in the searchfield
+		const { people, searchField, page } = this.state;
 		const filteredPeople = people.filter(person => {
 			const search = new RegExp(searchField.toLowerCase());
 			return search.test(person.name.toLowerCase());
 		})
+		//brings up loading screen while app is fetching data from API
 		if (!people.length) {
 			return <h1>Loading</h1>
-		} else {
+		} else { //renders main content once data is loaded
 		  	return (
-			    <div>
+			    <div className="container">
 			    	<Search search={this.searchChange} />
 			    	<People people={filteredPeople}/>
+			    	<h6>Page: {page}</h6>
 			    	<Navigation next={this.next} previous={this.previous}/>
 			    </div>
 		  	);	
