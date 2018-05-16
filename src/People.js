@@ -3,7 +3,8 @@ import List from "./List";
 
 const Test = ({ people }) => {
 	return (
-		<div className="people">
+		<div className="container people">
+			<div className="row">
 			{
 				people.map(person => {
 					return <List
@@ -14,6 +15,7 @@ const Test = ({ people }) => {
 							/>
 				})
 			}
+			</div>
 		</div>
 	)
 }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import People from "./People";
 import Navigation from "./Navigation";
+import Search from "./Search";
 
 class App extends Component {
 	constructor() {
@@ -9,7 +10,9 @@ class App extends Component {
 		this.state = {
 			people: [],
 			next: "",
-			previous: ""
+			previous: "",
+			page: 1,
+			searchField: ""
 		}
 	}
 
@@ -18,7 +21,7 @@ class App extends Component {
 		if (this.state.previous) {
 			fetch(this.state.previous)
 			.then(newRes => newRes.json())
-			.then(newData => this.setState({people: newData.results, previous: newData.previous, next: newData.next}))
+			.then(newData => this.setState({people: newData.results, previous: newData.previous, next: newData.next, searchField: ""}))
 		}
 	}
 
@@ -26,18 +29,27 @@ class App extends Component {
 		//get next page of results
 		fetch(this.state.next)
 		.then(newRes => newRes.json())
-		.then(newData => this.setState({people: newData.results, previous: newData.previous, next: newData.next}));
+		.then(newData => this.setState({people: newData.results, previous: newData.previous, next: newData.next, searchField: ""}));
+	}
+
+	searchChange = (event) => {
+		this.setState({searchField: event.target.value});
 	}
 
 	render() {
-		const { people } = this.state;
+		const { people, searchField } = this.state;
+		const filteredPeople = people.filter(person => {
+			const search = new RegExp(searchField.toLowerCase());
+			return search.test(person.name.toLowerCase());
+		})
 		if (!people.length) {
-			return <p>Loading</p>
+			return <h1>Loading</h1>
 		} else {
 		  	return (
 			    <div>
-			      <Navigation next={this.next} previous={this.previous}/>
-			      <People people={people}/>
+			    	<Search search={this.searchChange} />
+			    	<People people={filteredPeople}/>
+			    	<Navigation next={this.next} previous={this.previous}/>
 			    </div>
 		  	);	
 		}
